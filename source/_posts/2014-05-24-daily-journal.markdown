@@ -83,6 +83,38 @@ flashcards:
     back: "git branch --merged ; git branch --no-merged"
   - front: "git push origin master expand to..."
     back: "git push origin refs/heads/master:refs/heads/master"
+  - front: "command to create a new branch starting off of another one"
+    back: "git checkout -b newbranch existingbranch"
+  - front: "`git branch -d branch to delete` will yell at you under this circumstance"
+    back: "it's not merged into the current branch"
+  - front: "what happens if you do `git checkout origin/some-remote-branch`?"
+    back: "Detached head state. To create a tracking branch, do `git checkout localbranch origin/some-remote-branch`""
+  - front: "tracking branch"
+    back: "a local branch that have a direct relationship to a remote branch; `git push` and `git pull` will go to the tracking branch"
+  - front: "another way to write `git checkout foo origin/foo`"
+    back: "`git checkout --track origin/foo`; creates local foo tracking origin/foo"
+  - front: "Delete remote branch foo"
+    back: "git push origin :foo; remember: `git push origin [localbranch]:[remotebranch]`"
+  - front: "dog-ear"
+    back: "bend a page to make it easily findable later"
+  - front: "The rule for when _not_ to rebase"
+    back: "Don't rebase commits that you've pushed to a public repo"
+  - front: "difference b/w `git clone /path/to/repo` and `git clone file:///path/to/repo`"
+    back: "`file:///` uses the remote file transfer stuff that it would use for anything remote, whereas direct path directly copies and uses hard links and what not; `file:///` gives you a more pristine copy, less junk"
+  - front: "limitation of SSH repo access"
+    back: "no anonymous access, possibly bad for open source"
+  - front: "git protocol"
+    back: "daemon packaged w git but w no authentication; no pushing (in general, since it opens to the door to anyone)"
+  - front: "Speed of git protocol relative to SSH"
+    back: "way faster since no authentication and encryption overhead"
+  - front: "solution to SSH non-anonymity and git non-auth"
+    back: "configure server to use both; git protocol for cloner/pullerss, ssh for repo write access homies"
+  - front: "git command to init a bare repo in folder foo"
+    back: "`git init --bare foo`"
+  - front: "after creating a bare repo and running http server, git clone fails. Why? How to fix?"
+    back: "HTTP hosting implies you have static files to serve, but these don't magically exist by default. They can be generated via the post-update.sample hook, which runs `git update-server-info`.  You can either manually run this or enable the hook and push to it once (not via HTTP)"
+  - front: "start a ruby server hosting files in this directory"
+    back: "`ruby -run -e httpd . -p 5001`"
 ---
 
 ### Enterprise Integration Patterns
@@ -151,4 +183,84 @@ sense.
 Staging means you're building up snapshots for a commit. By the time you
 commit, you're just creating a commit object with meta data that points
 to that same snapshot.
+
+#### Simple git repo hosting via HTTP
+
+You can host a git repo via HTTP file hosting, which implies:
+
+- anonymity (no authentication, no way to know who's cloning your repo)
+- read-only access (can't push, unless doing crazy WebDAV things)
+
+So just for fun, here's the simplest number of steps to push to a
+localhost http git server.
+
+1. Create bare repo: `git init --bare fun.git`. This creates a folder
+   called `/fun.git`. The `.git` extension is optional, but
+   conventional.
+2. Start a server hosting `ruby -run -e httpd . -p 5000`
+3. Try and clone via http: `git clone http://localhost:5000/fun.git`
+
+This will give you an error:
+
+    fatal: repository 'http://localhost:5000/fun.git/' not found
+
+and your Ruby server will show the log
+
+    [2014-05-25 12:03:13] ERROR `/fun.git/info/refs' not found.
+    localhost - - [25/May/2014:12:03:13 EDT] "GET /fun.git/info/refs?service=git-upload-pack HTTP/1.1" 404 287
+    - -> /fun.git/info/refs?service=git-upload-pack
+
+So it's looking for files that aren't there. If you look at various 
+git manuals, it'll tell you something about how you should 
+`mv hooks/post-update.example hooks/post-update` and give it executable
+chmod permissions, but even if you do that and try and clone again,
+it'll fail.
+
+The reason for the failure is that there are static files that need to
+be generated in order for a plain ol static http git hosting solution to
+work, and these files haven't been generated yet. If you enabled the
+`post-update` hook and then pushed to the repo via some other means,
+those files would be generated, but just to get this example working,
+you can `cd` into `fun.git` and run
+
+    sh fun.git/hooks/post-update.example
+
+or you can just run the single command that the above script runs:
+
+    git update-server-info
+
+Then when you `git clone http://localhost:5000/fun.git`, the clone will
+succeed (though the repo's still totally empty).
+
+### `ruby -run`
+
+Also, here's the breakdown of the `ruby -run -e httpd . -p 5001`
+
+- There's a very intentionally-named Ruby library called `un`, which
+  [contains some useful tools](http://ruby-doc.org/stdlib-2.0.0/libdoc/un/rdoc/index.html)
+- The `-r` option requires the following lib; `-run` requires `un.rb`,
+  which is part of the Ruby standard library.
+- `un.rb` contains top-level method definitions, like `httpd`
+- `-e httpd` executes the top-level `httpd` method in `un.rb`, which
+  makes use of the rest of the command line args provided: `. -p 5001`,
+  and starts up a WEBBrick server.
+
+Here's another dumb example of a `ruby -r`:
+
+Put a file named `aunchy.rb` with the following contents into new
+subdirectory `ma`:
+
+    def lephant
+      puts "i am so raunchy"
+    end
+
+Then run `ruby -Ima -raunchy -elephant`:
+
+    i am so raunchy
+
+This works because
+
+- `-Ima` adds `ma` to the load path (which `require` uses)
+- `-raunchy` requires `aunchy.rb`
+- `-e` executes the method `lephant`
 
