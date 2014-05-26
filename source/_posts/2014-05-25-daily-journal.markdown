@@ -52,6 +52,12 @@ flashcards:
     back: "Systems management; monitors flow, makes sure all apps and components up and running, reports errors to central location"
   - front: "EIP: message endpoint"
     back: "connects a system explicitly to an integration solution; useful for legacy code"
+  - front: "Process Manager (two responsibilities)"
+    back: "1. storing data b/w messages (inside a 'process instance'). 2. Keeping track of progress and determining the next step (by using a 'process template')"
+  - front: "React and Object.observe"
+    back: "At odds, because the re-render everything upon change doesn't take advantage of the fact that Object.observe is a thing that will tell us exactly what changed and what needs to be re-rendered"
+  - front: "NIH (also, what's the antonym?)"
+    back: "Not invented here; antonynm: Proudly Found Elsewhere"
 ---
 
 ### Web Notifications
@@ -61,4 +67,14 @@ not long ago, and I forgot they were a thing. IRRCloud uses them too.
 Like so many other new HTML5-y things, there's a
 [spec](http://www.w3.org/TR/notifications/) for web notifications.
 Basically, you ask for permissions and then you can broadcast.
+
+### Not invented here (NIH)
+
+[Wikipedia](http://en.wikipedia.org/wiki/Not_invented_here)
+
+Antonym: Proudly Found Elsewhere (PFE)
+
+Often a criticism of OSS communities reinventing the wheels in 
+already-solved problem spaces.
+
 
