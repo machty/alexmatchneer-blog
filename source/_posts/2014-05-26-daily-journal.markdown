@@ -91,6 +91,47 @@ flashcards:
     back: "SOAP is shitty at caching because resources are not a first class concept like they are in REST, which deprives of verbs"
   - front: "transport vs transfer"
     back: "The dumb/blind carrying of data from A to B (transport) vs (transfer) the consideration of message content / what's being sent to effectively process the transfer. HTTP is transfer, evidence of this is all its verbs and status codes."
+  - front: "XSL"
+    back: "Extensible Stylesheet Language: family of languages to transform and render XML docs (XSLT, XSL-FO, XML Path)"
+  - front: "ActiveX"
+    back: "Microsoft framework that adapts earlier Component Object
+    Model"
+  - front: "Create an XML doc in JS"
+    back: "document.implement.createDocument()"
+  - front: "SGML"
+    back: "Standard Generalized Markup Language; derivatives include XML and HTML"
+  - front: "XML rel to SGML"
+    back: "subset of features to allow for easier parsing among other things"
+  - front: "DOMString"
+    back: "UTF-16 string; JavaScript already uses these, so a DOMString is just String. (there is no DOMString class in JS)"
+  - front: "XML Namespace"
+    back: "A URI, e.g. URL for the author's webpage, e.g.  http://www.w3.org/1999/xhtml. The URI/URL doesn't need content, just uniquely refers to that spec"
+  - front: "set an Element's attribute in js"
+    back: "element.setAttribute('onclick', "alert('wat')")"
+  - front: "Difference b/w Node and Element"
+    back: "Nodes could be text nodes. Just nodes in trees. Elements are named, can have classes and IDs, etc. An Element IS a Node."
+  - front: "Inline event and translation"
+    back: "onclick='alert(\"shit\")' becomes anonymous fn that gets `call`'d with clicked element as the context"
+  - front: "DOM Level 0 events"
+    back: "inline and traditional; only single handlers supported"
+  - front: "Standardizes ECMAScript"
+    back: "TC39"
+  - front: "Standardizes Web Architectures"
+    back: "W3C TAG (Technical Architecture Group)"
+  - front: "Mr. Promises is a member of ..."
+    back: "W3C Tag"
+  - front: "Rick Waldron is member of ..."
+    back: "W3C Tag"
+  - front: "Yehuda Katz is member of ..."
+    back: "TC39 and W3C TAG"
+  - front: "iOS click events"
+    back: "don't bubble up to document, unless 1. native button/link clicked, 2. handler explicitly added, 3. cursor: pointer (which prevents copy/paste from working as expected)"
+  - front: "Start of xml doc"
+    back: "<?xml version="1.0" encoding="UTF-8"?>"
+  - front: "XSLT is a member of this family of languages"
+    back: "XSL, extensible stylesheet language"
+  - front: "XSLT"
+    back: "Extensible stylesheet language transformations"
 ---
 
 ### EIP: Notes
@@ -344,10 +385,248 @@ SOAP is shitty for caching because resources are not a first class
 consideration in the way they are for REST. HTTP headers and resource
 URLs provide information that lends itself nicely to caching.
 
+### ActiveX!!!
+
+I never really knew what this was. It implies security risk and
+executable code within Internet Explorer. But wat it be?
+
+[Wikipedia](http://en.wikipedia.org/wiki/ActiveX)
+
+It's a Microsoft framework, picking up where Component Object Model
+(COM) left off. It enabled extra features in Internet Explorer but made
+it easy for malicious dicks to run code that was automatically
+downloaded from an `OBJECT` tag. 
+
+There's a word that keeps on getting thrown around: control. An ActiveX
+control. What kind of shitty name is that? Is that like the short-lived
+Ember.Control? What a control is?
+
+> ActiveX controls are essentially pieces of software and have access to your entire computer if you opt to install and run them.
+
+> An object in a window or dialog box. Examples of controls include push-buttons, scroll bars, radio buttons, and pull-down menus.
+
+> ActiveX controls are small programs, sometimes also called "add-ons," used on the Internet. They can make browsing more enjoyable by allowing animation or they can help with tasks such as installing security updates at Windows Update.
+
+> These are objects that are like small programs or "applets" and a number of Microsoft programs like Office and Internet Explorer (IE) are designed to be able to interact with them. An example is a spell checker. Since Word comes with a spell checker, other Microsoft programs such as Outlook Express can make use of it. In fact, any program with the appropriate interface can use this spell checker.
+
+So they're plugins / addons. Sometimes they've visible, other times
+they're hidden. But they were originally used to enhance the
+functionality of Internet Explorer to view things like PDFs and
+Macromedia Flash. So basically, ActiveX controls are components that
+could be reused in many different settings. Building blocks. Yesterday's
+technology: tomorrow. 
+
+> ActiveX controls are actually not Internet Explorer-only. They also work in other Microsoft applications, such as Microsoft Office.
+
+ActiveX increases the attack surface by malicious dicks; even a
+well-intentioned but carelessly implemented ActiveX control could 
+open the door to hackery, such as the Java ActiveX control. 
+
+### XSL: Extensible Stylesheet Language
 
 
 
+### document.implementation
 
+[MDN](https://developer.mozilla.org/en-US/docs/Web/API/document.implementation)
 
+Returns a DOMImplementation object associated with the current document.
 
+`document.implementation.createDocument(namespaceURI, qualifiedNameStr, documentType)` 
+creates an XML doc.
+
+- `namespaceURI`, e.g. 'http://www.w3.org/1999/xhtml'
+- `qualifiedNameStr`: qualified name of the document to be created,
+  which is an optional prefix + the local root element name; if you're
+  creating an html document, you'll provide 'html' because that's the
+  root element name of an html doc.
+- `documentType`, optional, often just null
+
+Many examples use Document.load to load xml data, but it's not part of
+the [Load and Save](http://www.w3.org/TR/2004/REC-DOM-Level-3-LS-20040407/)
+spec any more, or it is, but Load and Save is really old? 
+
+This spec is/was
+
+> a platform- and language-neutral interface that allows programs and scripts to dynamically load the content of an XML document into a DOM document and serialize a DOM document into an XML document
+
+### Level N
+
+DOM Level 3 wtf does it mean? I guess it just means a more complex
+layering on top of a previous level. Additional levels enhance and
+expand scope, while versions are meant to refine, fix issues, etc,
+limited to that scope. As DOM Levels increase, features are added that
+don't conflict with lower DOM features but just add more stuff on top.
+So you can just use DOM Level 1 features and never touch anything above,
+but those above Levels will never thwart DOM Level 1. 
+
+- DOM Level 0: pre-specification DOM API, e.g. IE3
+- DOM Level 1: (1998) full specification for HTML/XML doc, partly
+  implemented by IE5
+- DOM Level 2: (late 2000) added `getElementById` and an event model
+- DOM Level 3: (late 2004) added XPath and keyboard event handling and
+  support for serializing docs as XML (?)
+- DOM Level 4: currently being developed, last call working draft
+  released in Feb 2014. 
+
+The terminology used as that DOM Level 3 is the latest "release". But
+not to be confused with versions... presumably each level has its own
+version.
+
+### Events
+
+Informed by this [Wikipedia article](http://en.wikipedia.org/wiki/DOM_Events#DOM_Level_0)
+
+DOM event handling has evolved over the years. 
+
+#### DOM Level 0 events
+
+(DOM Level 0 meaning pre-spec DOM).
+  
+- inline, e.g. `onclick="alert('shit'); return false;"`, which
+  essentially gets invoked as
+  `(function() { alert('shit'); return false; }).call(clickedElement)`
+- traditional; event handlers can be added/removed by script, but only
+  one event handler could be registered; `node.onclick = handler`,
+  `node.onclick = newHandler;`, etc.
+
+Did you know that `document.onclick = someFn` still works? Ridiculous!
+
+#### DOM Level 2 events
+
+`addEventListener`, `removeEventListener`, `dispatchEvent`, along with
+`stopPropagation` and `preventDefault`.
+
+Fun fact: I thought the third param to addEventListener was some
+ActionScript-y thing about weak references, but it's actually
+`useCapture`. Capture events occur starting from the root of the DOM
+(document) and move toward the event target; any capture event listeners
+registered in that direct line will be invokved first and have the
+opportunity to `stopPropagation`. 
+
+Fun fact; the ancestor chain of bubbling events is determined before the
+event is fired, so that any DOM modifications that happen
+(e.g. moving the EventTarget to some other part of the DOM) within an
+event handler doesn't affect the predetermined chain.
+
+`event.target` refers to the `EventTarget`; this is the receiver of the
+event
+
+#### Event Delegation
+
+From [learn.jquery.com](http://learn.jquery.com/events/event-delegation/):
+
+> Event delegation allows us to attach a single event listener, to a parent element, that will fire for all descendants matching a selector, whether those descendants exist now or are added in the future.
+
+If this feature didn't exist, then you would have to do a lot more
+manual adding and removing of event handlers as DOM elements were added
+and removed, whereas delegation allows you to define an event handler on
+a parent node that only fires when the event passes through a child
+described by a selector, e.g.
+
+    $('#table').on('click', 'td', function() { });
+
+One of jQuery's original APIs for event delegation was `.live`, e.g.
+`$('a').live(...)`, but this had some issues:
+
+- The selector eagerly fired when it didn't to (perf)
+- Chaining methods didn't work, which is a surprising and bad API,
+  e.g. $('a').find('p').live('click');
+- `.live()` events always attached to `document`, which means events
+  take the longest and slowest path before being handled, e.g. a click
+  on an `a` tag 20 levels deep in the DOM needs to go all the way
+  through those 20 levels before being handled.
+- `click` doesn't bubble to `document` on iOS so `live` can't work
+  without other workarounds, e.g. (cursor:pointer), natively clickable
+  elements, etc
+- stopPropagation doesn't work since event already propagated to
+  `document` by the time `live` logic fires
+- `.live` interacted weird with other methods, e.g. `$(document).off()`
+  would disable `live` handlers, even though `live` selector seemed to
+  imply some other magic.
+
+That's why things shifted to `delegate` and eventually `on`, which hits
+the sweet spot.
+
+    `$('#root').on('click', 'a', handler)`
+
+Benefits of this approach include:
+
+- 'a' isn't unnecessarily queried up front
+- Chaining will work as expect (i.e. continued modifications to `#root`)
+- No longer throw everything on `document`
+- Explicit syntax suggests workarounds for iOS
+
+#### Historical shit
+
+[source: quirksmode](http://www.quirksmode.org/js/events_order.html)
+
+Netscape 4 had capture only.
+
+Microsoft had bubble only.
+
+jQuery provides event bubbling for all, along with event delegation,
+which _depends_ on event bubbling in order to work (the italics are
+probably overkill; if you have event capture you can implement event
+bubbling... even if you didn't have event capture, you can walk the tree
+and implement yourself).
+
+Proof that you can implement it yourself: 
+
+http://jsbin.com/tofop/1/edit
+
+Just loop over parentNode until you get there.
+
+jQuery never provided an API for event capturing because it's not
+possible on old IE. I guess it's possible, but you'd have to introduce
+some async-ness, which would probably break other assumptions. So for
+IE6, which only supported bubbling, if you wanted something like
+
+    $('a').capture('click', handler);
+ 
+you would have to first manually walk the tree up to the document,
+then refire a fake event back to the target, calling any capture
+handlers, 
+
+So if all you had was Netscape
+
+Ember depends on jQuery for event delegation. This will probably go away
+soon. 
+
+### What's wrong w iOS anyway?
+
+Non-native click events don't bubble up to document unless
+
+- the clicked thing is a native clickable, e.g. link or button
+- the clicked thing has a handler explicitly attached to it, e.g.
+  onclick= attr or addEventListener on that thing.
+- [example](http://jsbin.com/xuwuvu/1/edit)
+
+### W3C: World Wide Web Consortium
+
+The standards organization founded and led by Tim Berners-Lee.
+
+W3C TAG is the Technical Architecture Group in charge of documenting and
+building consensus around principles of Web architecture. People whose
+names my dumb brain should remember on the TAG:
+
+- Yehuda Katz
+- Domenic Denicola
+- David Herman
+
+Not to be confused with TC39, which standardizes ECMAScript. Membership
+can be determined by those present in the
+[meeting notes](https://github.com/rwaldron/tc39-notes/blob/master/es6/2014-04/apr-9.md)
+
+So W3C Tag reviews things like 
+[quote management](https://dvcs.w3.org/hg/quota/raw-file/tip/Overview.html)
+APIs and stuff that browsers need to expose, and TC39 handles language
+features for ECMAScript. 
+
+### XSLT
+
+OMG so many dumb things to learn. Here's a 
+[JSBin](http://jsbin.com/davew/1/edit) for farting around w
+XSLT transformations. Kinda reminds me of `<content select="asd">` in
+Web Components land, though probably way more complicated.
 
