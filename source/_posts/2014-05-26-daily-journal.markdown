@@ -107,7 +107,7 @@ flashcards:
   - front: "XML Namespace"
     back: "A URI, e.g. URL for the author's webpage, e.g.  http://www.w3.org/1999/xhtml. The URI/URL doesn't need content, just uniquely refers to that spec"
   - front: "set an Element's attribute in js"
-    back: "element.setAttribute('onclick', "alert('wat')")"
+    back: "element.setAttribute('onclick', alert('wat'))"
   - front: "Difference b/w Node and Element"
     back: "Nodes could be text nodes. Just nodes in trees. Elements are named, can have classes and IDs, etc. An Element IS a Node."
   - front: "Inline event and translation"
@@ -127,7 +127,7 @@ flashcards:
   - front: "iOS click events"
     back: "don't bubble up to document, unless 1. native button/link clicked, 2. handler explicitly added, 3. cursor: pointer (which prevents copy/paste from working as expected)"
   - front: "Start of xml doc"
-    back: "<?xml version="1.0" encoding="UTF-8"?>"
+    back: '<?xml version="1.0" encoding="UTF-8"?>'
   - front: "XSLT is a member of this family of languages"
     back: "XSL, extensible stylesheet language"
   - front: "XSLT"
