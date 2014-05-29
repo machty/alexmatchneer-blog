@@ -49,6 +49,12 @@ flashcards:
     back: "Union Market, Gourmet Garage"
   - front: "ruby: break x" 
     back: "force the method that yielded me to return x"
+  - front: "RSS (memory)" 
+    back: "Resident set size: portion of process's memory that is held in RAM, as opposed to swap or filesystem"
+  - front: "Enumereable Lazy" 
+    back: "Ruby 2.0's ability to lazy eval what might be an infinite sequence; not eval'd until something like `to_a` called"
+  - front: "Why couldn't Ruby pre 2.0 use OS COW semantics while forking?" 
+    back: "Because setting FL_MARK was rightfully interpreted as a write; bitmap marking got around this"
 ---
 
 ### Rubymotion
@@ -386,5 +392,128 @@ More generally:
     foo { break "naw" } # => "naw"
 
 `break x` means "force the method that yielded me to return x".
+
+### Ruby Garbage Collection
+
+Phrasing from [this article](http://samsaffron.com/archive/2014/04/08/ruby-2-1-garbage-collection-ready-for-production)
+
+Ruby 2.0: collect GC every 8MB; too small for most Rails apps
+Ruby 2.1: Revised to have defaults make sense for both script and web apps
+
+Specifically, expand GC limit every time limit hit, with ceilings. 
+
+But there was a 2.1 bug fixed in 2.1.1. In addition, there's still a
+"memory doubling" issue under 2.1.1 due to the generational GC added to
+2.1.
+
+The gist of generational GC is that: 
+
+- Oftentimes, an allocated piece of memory is transient; it's used once
+  and immediately its consumer lets go of it, and it can be released
+  back to the system
+- Objects that survive a first sweep are statistically likely to
+  maintain in use for a long time, so it doesn't make sense to
+  constantly sweep these objects in every GC pass.
+- So separate garbage collection into two generations, old and new.
+  New-gen allocations get moved to old-gen if they survive the first
+  sweep, and old-gen sweeps (major GC events) happen way less
+  frequently.
+
+This apparently made Ruby 2.1 10x faster on average. But according to
+this article, the 2.1 algo was too simplistic for web apps since web
+apps perform lots of "medium" allocations (allocations that survive a
+first sweep but can thereafter very quickly be swept up), e.g. most
+(all?) allocations will take place during a web request, so if a GC hits
+in the middle of a request, a lot of new-gen allocations will be moved
+to old-gen, even though much of the new-genners could be cleaned up at
+the end of the request. 
+
+Bad side effects:
+
+- Major GC events run more often (triggered by oldgen growth)
+- Oldgen grows beyond what we need (saturated by medium-gen)
+
+.NET and Java use 3 generations, gen0 survivors go to gen1, then gen1 to
+gen2, where they remain.
+
+The planned (and I guess implemented at this point) refactor is to
+requires that objects will have to survive 2 minor GCs to be promoted to
+oldgen, therefore, if no more than 1 minor GC runs during a request,
+heaps will stay at optimal sizes. Slated for 2.2 release (not yet
+released).
+
+BTW, RSS refers to "resident set size", the portion of a process's
+memory that is held in RAM, as in 'in residence'. If it weren't in
+residence, it might be in swap or in filesystem. 
+
+So the Ruby algo is called `RGenGC`. 
+
+### Bitmap marking
+
+[source](http://patshaughnessy.net/2012/3/23/why-you-should-be-excited-about-garbage-collection-in-ruby-2-0)
+
+In MRI, lots data stored as metadata + RValue, e.g. "abc" stored as an
+RString which is flags + "abc" stored on an RValue heap with lots of
+other strings.
+
+    [a,b,c,s,o,m,e,o,t,h,e,r,s,t,r,i,n,g]
+
+Fun fact: your ruby code itself is converted into RValue structures as
+it is parsed and converted into byte code.
+
+GC is run when we're out of RValue storage, loop over references an set
+`FL_MARK` to mark the obj. Then leftover unmarked freeable objs are
+collected into a singly-linked list, which will then be used for future
+RValue allocs. If a heap (collection of RValue pointers) can't free up
+any more space, and additional heap is alloc'd. 
+
+#### Copy-on-Write optimization
+
+(brought to you by POSIX, right? or BSD? TODO: nail this down)
+
+Linux/UNIX/UNIX-like systems have COW (copy on write). Semantically, a
+fork of a process means copying all of memory from starting process. But
+a full copy doesn't actually need to happen until one of the proces
+writes.
+
+Presumably this same thing happens if it's the parent process that
+writes to COW data, right? How does that work? Are they both considered
+child processes? TODO!!!
+
+But before bitmap sweeping, COW didn't work for Ruby, because Ruby's GC
+involves writing to `FL_MARK` to mark a piece of data as referenced by
+some other thing, and this sets off the OS's copy-on-write behavior;
+writing to `FL_MARK` looks like any other kind of memory write and the
+OS doesn't know the difference.
+
+(note: [Ruby Enterprise Edition](http://www.rubyenterpriseedition.com/) 
+fixed this, if you're interested)
+
+The MRI fix came with replacing `FL_MARK` with a bitmap of marked
+values. It's not a 2D bit map, it just means bits mapped to RValue
+heap array elements. Obviously the bitmaps themselves are heavily
+modified so they'll definitely be fully copied, but they're small so no
+biggie. 
+
+Heaps now must be "aligned" with their maps, so we can't just use boring
+ol malloc, but rather `posix_memalign` to alloc something that
+presumably doesn't align with a word. 
+
+### Enumerable Lazy
+
+This is in 2.0. You don't want to use it all the time for performance
+reasons (the construction of all the intermediate blocks outweighs the
+cost of evaluating some array you might not entirely consume), but it
+allows you to do things like:
+
+    require 'prime'
+    Prime.lazy.select {|x| x % 4 == 3 }.take(10).to_a
+
+[Read more](http://railsware.com/blog/2012/03/13/ruby-2-0-enumerablelazy/)
+
+
+
+
+
 
 
