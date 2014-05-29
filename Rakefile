@@ -226,7 +226,7 @@ task :deploy do
 end
 
 desc "Generate website and deploy"
-task :gen_deploy => [:integrate, :generate, :deploy] do
+task :gen_deploy => [:yaml, :integrate, :generate, :deploy] do
 end
 
 desc "copy dot files for deployment"
@@ -493,4 +493,15 @@ task :flashcards do
 
   upload_cards!(cards_to_update, auth_token)
 end
+
+desc "validates YAML in source files"
+task :yaml do
+  require 'yaml'
+  require 'fileutils'
+
+  Dir.glob('source/_posts/*markdown').each do |f|
+    YAML.load_file(f)
+  end
+end
+
 
