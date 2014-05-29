@@ -45,6 +45,10 @@ flashcards:
     back: "OpenSolaris"
   - front: "The X in OS X"
     back: "Signifies relationship to uniX"
+  - front: "Logivision POS / LPOS users" 
+    back: "Union Market, Gourmet Garage"
+  - front: "ruby: break x" 
+    back: "force the method that yielded me to return x"
 ---
 
 ### Rubymotion
@@ -312,9 +316,7 @@ Commonalities b/w Unix and Linux
 - Development tools (perl, php, python, GNU C/C++ compilers)
 - POSIX interface (wat? i guess this means both are POSIX compliant)
 
-
 [Unix History graphic](http://en.wikipedia.org/wiki/File:Unix_history.svg)
-
 
 ### IEEE: Institute of Electrical and Electronics Engineers
 
@@ -368,6 +370,21 @@ concisely advertise a product's capability:
 
 > While each amendment is officially revoked when it is incorporated in the latest version of the standard, the corporate world tends to market to the revisions because they concisely denote capabilities of their products. As a result, in the market place, each revision tends to become its own standard.
 
+### Pass a return value to "break" in Ruby
 
+![twitter convo](http://f.cl.ly/items/0Q311t0Y1R2v1O29081u/Image%202014-05-29%20at%2011.51.58%20AM.png)
+
+    [1,2,3].map { |i| break "shit" } # => "shit"
+ 
+More generally:
+
+    def foo
+      yield
+      "shit"
+    end
+
+    foo { break "naw" } # => "naw"
+
+`break x` means "force the method that yielded me to return x".
 
 
