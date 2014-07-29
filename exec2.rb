@@ -1,0 +1,6 @@
+
+fork {
+  exec 'ls'
+}
+
+sleep
