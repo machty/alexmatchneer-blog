@@ -60,6 +60,40 @@ Library of fun little trinkets.
   over the daemon unless you're a `ps`/`kill` JOURNEYMAN. 
   - this takes advantage of the `fork` `getsid` 
 
+https://github.com/ghazel/daemons/blob/master/lib/daemons.rb#L45-L53
+
+    # 1.  Forks a child (and exits the parent process, if needed)
+    # 2.  Becomes a session leader (which detaches the program from
+    #     the controlling terminal).
+    # 3.  Forks another child process and exits first child. This prevents
+    #     the potential of acquiring a controlling terminal.
+    # 4.  Changes the current working directory to "/".
+    # 5.  Clears the file creation mask (sets +umask+ to 0000).
+    # 6.  Closes file descriptors (reopens +STDOUT+ and +STDERR+ to point to a logfile if
+    #     possible).
+    
+Controlling terminal:
+
+http://www.gnu.org/software/libc/manual/html_node/Controlling-Terminal.html
+
+> An individual process disconnects from its controlling terminal when it calls setsid to become the leader of a new session.
+
+Ah I get it:
+
+- first fork is to orphan the child, but it's still connected to a
+  controlling terminal/session. 
+
+https://github.com/ghazel/daemons/blob/master/lib/daemons/daemonize.rb#L201
+
+They actually loop through all known IO files to close file
+descriptors using ObjectSpace:
+
+http://www.ruby-doc.org/core-2.1.2/ObjectSpace.html
+
+https://github.com/ghazel/daemons/blob/master/lib/daemons/daemonize.rb#L221
+
+That's pretty rad. I guess the GC uses it too.
+
 ## .pid file
 
 It's a file in a well known location that contains only the pid of 
